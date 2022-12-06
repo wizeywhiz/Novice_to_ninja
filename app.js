@@ -32,6 +32,18 @@ const Model = {
         },
         {state:"Anambra", 
          capital: "Awka"
+        },
+        {state:"Bauchi", 
+         capital: "Bauchi"
+        },
+        {state:"Benue", 
+         capital: "Markurdi"
+        },
+        {state:"Borno", 
+         capital: "Maiduguri"
+        },
+        {state:"Cross River", 
+         capital: "Calabar"
         }
     ]
 };
@@ -41,8 +53,10 @@ const view = {
     question: document.getElementById('question'),
     result: document.getElementById('result'),
     info: document.getElementById('info'),
+    start: document.getElementById('start'),
+    answer: document.getElementById('answer'),
     response: document.querySelector('#response'),
-    form: document.forms[0],
+    
     render(target,content,attributes) {
     for(const key in attributes) {
     target.setAttribute(key, attributes[key]);
@@ -51,20 +65,20 @@ const view = {
     }, 
 
     setup(){
-        this.show(this.question);
-        this.show(this.response);
+        this.show(this.question);        
         this.show(this.result);
-        // this.hide(this.start);
+        this.hide(this.start);
         this.render(this.score,controller.score);
         this.render(this.result,'');
         this.render(this.info,'');
-        this.resetForm();
+        // this.render(view.response.submit, "Submit answer", {'disabled':'false'});
+        
         },
 
-    resetForm(){
-        this.response.answer.value = '';
-        this.response.answer.focus();
+    buttons(array){
+        return array.map(value =>`<button>${value}</button>`).join('');
         },
+            
 
     show(viewComponent){
         viewComponent.style.display = 'block';
@@ -93,6 +107,7 @@ const controller = {
     currentState:"",
     currentCapital:"", 
     start(quiz){
+        
         console.log('start() invoked');
         this.score = 0;
         this.questions = [...quiz];
@@ -103,30 +118,40 @@ const controller = {
     
     ask(){
         console.log('ask() invoked');
-        if(this.questions.length > 0) {
+        if(this.questions.length > 2) {
+            
             shuffle(this.questions);
-
+            
+            
+        
         this.question = this.questions.pop();        
         this.currentState = this.question.state;
         this.currentCapital = this.question.capital;
-    const question = `What is the capital of ${this.currentState}?`;
-    view.render(view.question,question);
-    view.response.addEventListener('submit',(e)=>{this.check(e)});
-        }
+        const options = [this.questions[0].capital, this.questions[1].capital, this.question.capital];
+        shuffle(options);
+        const question = `What is the capital of ${this.currentState}?`;
+        view.render(view.question,question);
+        view.render(view.response,view.buttons(options));  
+        
+
+        
+    
+    
+        } else { this.gameOver();}
     },
-    check(event){
-        console.log('check(event) invoked');
-        event.preventDefault();
-        const response = view.response.answer.value;
+    check(event){        
+        console.log('check(event) invoked');        
+        const response = event.target.textContent;
+        console.log(response)
         const answer = this.currentCapital;
-        if(response === answer){
+        if(response.trim().toUpperCase() === answer.toUpperCase()){
         view.render(view.result,'Correct!',{'class':'correct'});
         this.score++;
         view.render(view.score,this.score);
         } else {
         view.render(view.result,`Wrong! The correct answer was ${answer}`,{'class':'wrong'});
         }
-        view.resetForm();
+               
         this.ask();
         },
     gameOver(){
@@ -137,7 +162,10 @@ const controller = {
     }
 }
 
-controller.start(Model.question);
+// controller.start(Model.question);
+// view.render(view.response.submit, "Submit answer", {'disabled':'true'});
+view.start.addEventListener('click',()=>{controller.start(Model.question)});
+view.response.addEventListener('click', (event) => controller.check(event), false);
 
 
 

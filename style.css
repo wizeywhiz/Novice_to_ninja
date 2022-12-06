@@ -40,6 +40,10 @@ font-size: 24px;
 #question {
 font-size: 24px;
 }
+#start{
+    height: 40%;
+    background-color: darkcyan;
+}
 #result{
 color: #fff;
 margin: 0.2em 0;
